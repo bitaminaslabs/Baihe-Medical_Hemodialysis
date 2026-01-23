@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baihe Medical | Hemodialysis Mastery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- MathJax for proper formula rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --navy: #002147;
+            --teal: #008080;
+            --sky: #0ea5e9;
+            --arterial: #ef4444;
+            --venous: #3b82f6;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #000;
+            margin: 0;
+            overflow: hidden;
+            color: white;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+            background: radial-gradient(circle at center, #111827 0%, #000 100%);
+            padding: 4rem;
+        }
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .slide-content {
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 0.8s 0.3s ease;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        .slide.active .slide-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Background Vortex Animation */
+        @keyframes vortex {
+            0% { transform: rotate(0deg); opacity: 0.1; }
+            50% { opacity: 0.3; }
+            100% { transform: rotate(360deg); opacity: 0.1; }
+        }
+        .vortex-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .vortex { 
+            position: absolute;
+            width: 150vw;
+            height: 150vw;
+            border: 1px solid rgba(14, 165, 233, 0.12);
+            border-radius: 42%;
+            animation: vortex 30s linear infinite;
+            top: -25%;
+            left: -25%;
+        }
+        .vortex-alt {
+            width: 130vw;
+            height: 130vw;
+            animation-duration: 45s;
+            animation-direction: reverse;
+            border-color: rgba(20, 184, 166, 0.08);
+        }
+
+        /* Flow Path Animations */
+        @keyframes flowPulse {
+            0% { stroke-dashoffset: 100; opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+        .flow-path-venous { stroke-dasharray: 12, 6; animation: flowPulse 3s linear infinite; }
+        .flow-path-arterial { stroke-dasharray: 12, 6; animation: flowPulse 3s linear infinite reverse; }
+
+        /* Progress Dots */
+        .progress-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+        }
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #374151;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .progress-dot.active {
+            background: var(--sky);
+            width: 25px;
+            border-radius: 10px;
+        }
+        
+        .grad-text {
+            background: linear-gradient(to right, #38bdf8, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .data-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        
+        .section-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--sky);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .section-tag::after {
+            content: "";
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--sky), transparent);
+        }
+
+        .math-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="vortex-container">
+        <div class="vortex"></div>
+        <div class="vortex vortex-alt"></div>
+    </div>
+
+    <div class="fixed top-4 right-4 text-[10px] text-slate-500 font-mono z-50 uppercase tracking-[0.2em]">
+        [ARROWS] NAVIGATE • [SPACE] NEXT
+    </div>
+
+    <!-- Slide 1: Hero -->
+    <section class="slide active" id="s1">
+        <div class="slide-content flex flex-col justify-center items-center text-center">
+            <div class="mb-6 px-4 py-1 border border-sky-500/30 bg-sky-500/10 text-sky-400 rounded-full text-[10px] font-bold tracking-[0.4em] uppercase animate-pulse">
+                Technical Mastery in Dialysis
+            </div>
+            <h1 class="text-7xl md:text-9xl font-extrabold mb-6 leading-none tracking-tighter uppercase">HEMO<br><span class="grad-text">DYNAMICS.</span></h1>
+            <p class="text-xl md:text-2xl text-slate-400 max-w-3xl font-light leading-relaxed">
+                Precision engineering to redefine dialysis access across the Iberian Peninsula.
+            </p>
+            <div class="mt-12 h-1 w-24 bg-sky-500"></div>
+        </div>
+    </section>
+
+    <!-- Slide 2: Definition and Location -->
+    <section class="slide" id="s2">
+        <div class="slide-content grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                <span class="section-tag">1. Definition and Location</span>
+                <h2 class="text-6xl font-black mb-8 uppercase tracking-tighter leading-tight">Access<br><span class="text-sky-400">Mastery.</span></h2>
+                <div class="space-y-6">
+                    <div class="bg-white/5 p-8 rounded-3xl border border-white/5 backdrop-blur-md">
+                        <h4 class="font-bold text-xs mb-3 uppercase tracking-widest text-white">Definition</h4>
+                        <p class="text-sm text-slate-400 leading-relaxed italic">"Flexible tubular device implanted in a large-caliber central vein."</p>
+                        <p class="text-xs text-slate-500 mt-2">Designed specifically to manage the high-volume bidirectional flow necessary for effective renal replacement therapy.</p>
+                    </div>
+                    <div class="bg-white/5 p-8 rounded-3xl border border-white/5 backdrop-blur-sm">
+                        <h4 class="font-bold text-xs mb-3 uppercase tracking-widest text-white">Clinical Localization</h4>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="text-center p-4 bg-slate-900 rounded-2xl border border-slate-800">
+                                <i class="fa-solid fa-hospital-user text-sky-500 mb-2"></i>
+                                <p class="text-[9px] font-bold uppercase tracking-widest leading-tight">Internal Jugular</p>
+                            </div>
+                            <div class="text-center p-4 bg-slate-900 rounded-2xl border border-slate-800">
+                                <i class="fa-solid fa-stethoscope text-sky-500 mb-2"></i>
+                                <p class="text-[9px] font-bold uppercase tracking-widest leading-tight">Subclavian</p>
+                            </div>
+                            <div class="text-center p-4 bg-slate-900 rounded-2xl border border-slate-800">
+                                <i class="fa-solid fa-person-dots-from-line text-sky-500 mb-2"></i>
+                                <p class="text-[9px] font-bold uppercase tracking-widest leading-tight">Femoral</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-center">
+                <div class="bg-slate-950 border border-slate-800 p-20 rounded-[4rem] text-center relative overflow-hidden shadow-2xl">
+                    <i class="fa-solid fa-crosshairs text-[15rem] text-sky-500 opacity-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></i>
+                    <i class="fa-solid fa-user-vneck text-9xl text-sky-500 mb-6 opacity-40"></i>
+                    <p class="text-[11px] uppercase font-black tracking-[0.5em] text-slate-500">Precision Focus</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: Typology and Application -->
+    <section class="slide" id="s3">
+        <div class="slide-content">
+            <span class="section-tag text-center mx-auto w-fit">3. Typology and Application</span>
+            <h2 class="text-4xl font-bold mb-12 text-center uppercase tracking-tighter leading-none">Portfolio <span class="text-sky-400">Classifications.</span></h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 h-3/5">
+                <div class="bg-slate-900/50 p-12 rounded-[3.5rem] border border-white/5 hover:border-sky-500/30 transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="text-sky-400 font-bold text-[10px] uppercase tracking-widest">Acute (Short-Term)</div>
+                            <i class="fa-solid fa-bolt-lightning text-sky-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-4xl font-bold mb-6 uppercase">Non-Tunneled</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-8 italic">"Engineered for urgency and immediate clinical intervention."</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">High-flow Thermosensitive Polyurethane (PUR) allows for rigid insertion and safe dwelling in acute care settings.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-[9px] font-black uppercase text-slate-500 border border-slate-800 px-4 py-2 rounded-xl">AKI Treatment</span>
+                        <span class="text-[9px] font-black uppercase text-slate-500 border border-slate-800 px-4 py-2 rounded-xl">ICU Optimized</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/50 p-12 rounded-[3.5rem] border border-white/5 hover:border-teal-500/30 transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="text-teal-400 font-bold text-[10px] uppercase tracking-widest">Chronic (Long-Term)</div>
+                            <i class="fa-solid fa-infinity text-teal-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-4xl font-bold mb-6 uppercase">Tunneled / Hickman</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-8 italic">"Long-term stability for maintenance dialysis therapy."</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">Integrating Dacron cuffs for anchoring and medical-grade materials to prevent long-term vessel wall trauma.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-[9px] font-black uppercase text-slate-500 border border-slate-800 px-4 py-2 rounded-xl">Dacron Anchoring</span>
+                        <span class="text-[9px] font-black uppercase text-slate-500 border border-slate-800 px-4 py-2 rounded-xl">ESRD Management</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Pedagogical Analysis - D-Lumen Physics -->
+    <section class="slide" id="s4">
+        <div class="slide-content">
+            <span class="section-tag text-center mx-auto w-fit">Fluid Mechanics Analysis</span>
+            <h2 class="text-4xl font-bold mb-8 uppercase text-center leading-none">Lumen <span class="text-sky-400">Engineering.</span></h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="bg-slate-900 border border-slate-800 p-12 rounded-[3.5rem] text-center relative group">
+                    <div class="vortex absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity"></div>
+                    <div class="w-52 h-52 border-4 border-slate-700 rounded-full flex flex-col mx-auto mb-6 p-4 relative z-10 overflow-hidden">
+                        <div class="flex-grow border-b-2 border-slate-700 flex items-center justify-center text-[10px] text-red-500 font-bold uppercase">Arterial (D-Shape)</div>
+                        <div class="flex-grow flex items-center justify-center text-[10px] text-blue-500 font-bold uppercase">Venous (D-Shape)</div>
+                    </div>
+                    <div class="math-box text-sky-400 text-lg">
+                        \[ Q = \frac{\pi \Delta P r^4}{8 \eta L} \]
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold uppercase tracking-tighter">The Exponential Advantage: \( r^4 \)</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed text-justify">
+                        In a fixed catheter shaft, internal space is the primary constraint. Standard round lumens create "dead space." Our <strong>D-Shaped design</strong> maximizes the internal radius \( r \).
+                    </p>
+                    <div class="p-6 bg-sky-500/5 border border-sky-500/20 rounded-3xl">
+                        <p class="text-sm text-slate-300 leading-relaxed italic text-center">
+                            \[ Q \propto r^4 \]
+                        </p>
+                        <p class="text-xs text-slate-400 leading-relaxed text-center mt-2">
+                            A 10% increase in lumen radius yields a ~46% increase in flow capacity, ensuring superior Kt/V dose delivery.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Flow Mastery - Benchmarking -->
+    <section class="slide" id="s5">
+        <div class="slide-content flex flex-col justify-center">
+            <span class="section-tag">Hemodynamic Excellence</span>
+            <h2 class="text-4xl font-bold mb-4 uppercase text-center leading-none">Flow <span class="text-sky-400">Benchmarking.</span></h2>
+            <p class="text-center text-slate-500 mb-12 uppercase tracking-widest text-[10px]">Benchmarked: ABLE® 14Fr High-Flow Metrics</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Metrics Vis -->
+                <div class="bg-slate-950 border border-slate-800 rounded-[3rem] p-12 flex flex-col items-center justify-center relative overflow-hidden h-[450px] shadow-2xl">
+                    <div class="vortex absolute opacity-20" style="width: 200%; height: 200%; top: -50%; left: -50%;"></div>
+                    
+                    <div class="mt-8 text-center bg-slate-900/80 p-12 rounded-[3rem] border border-slate-800 z-10">
+                        <div class="text-6xl font-black text-white leading-none">701.9</div>
+                        <p class="text-xs uppercase text-slate-500 mt-2 tracking-widest">Maximum mL/min @ 300mmHg</p>
+                        <p class="text-[10px] uppercase tracking-[0.3em] text-sky-400 mt-6 font-bold italic">Peak Procedural Efficiency</p>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-slate-900/50 border border-slate-800 rounded-[2rem] overflow-hidden shadow-2xl">
+                    <table class="w-full text-left text-[11px] data-table">
+                        <thead class="bg-slate-800 text-sky-400 uppercase tracking-widest">
+                            <tr>
+                                <th class="p-5">Pressure (mmHg)</th>
+                                <th class="p-4">Arterial Flow</th>
+                                <th class="p-4">Venous Flow</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-300">
+                            <tr><td class="p-5 font-mono">50</td><td class="p-4">311.7</td><td class="p-4">285.5</td></tr>
+                            <tr class="text-sky-400 font-bold">
+                                <td class="p-5 font-mono">100</td><td class="p-4">411.0</td><td class="p-4">379.7</td>
+                            </tr>
+                            <tr><td class="p-5 font-mono">150</td><td class="p-4">529.5</td><td class="p-4">487.7</td></tr>
+                            <tr class="text-white font-black bg-sky-500/10 border-l-4 border-sky-500">
+                                <td class="p-5 font-mono">200</td><td class="p-4">610.8</td><td class="p-4">550.3</td>
+                            </tr>
+                            <tr><td class="p-5 font-mono">250</td><td class="p-4">640.3</td><td class="p-4">605.0</td></tr>
+                            <tr><td class="p-5 font-mono">300</td><td class="p-4">701.9</td><td class="p-4">685.1</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Anti-Wall Suction - Ladder Ports -->
+    <section class="slide" id="s6">
+        <div class="slide-content grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                <span class="section-tag">Hydrodynamic Continuity</span>
+                <h2 class="text-6xl font-black mb-6 uppercase tracking-tighter leading-none">Anti-Wall<br><span class="text-teal-400">Suction.</span></h2>
+                <h3 class="text-xl font-bold mb-4 uppercase text-sky-400">Ladder-Alike Strategy</h3>
+                <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                    Pump alarms are frequently caused by ports adhering to the vessel intima. Our proprietary <strong>Ladder design</strong> eliminates this clinical friction.
+                </p>
+                <div class="p-8 bg-slate-900 border border-slate-800 rounded-3xl">
+                    <p class="font-bold text-xs uppercase mb-3 text-sky-400 tracking-[0.2em]">Longitudinal Axis Alignment</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">By aligning oval side-holes along a shared longitudinal line, we prevent the "Vacuum seal" common in circular punch-outs. If one port meets the wall, the others remain free to maintain flow.</p>
+                </div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="bg-slate-950 border border-slate-800 p-20 rounded-[4rem] w-full flex flex-col items-center shadow-2xl relative overflow-hidden h-[500px] justify-center">
+                    <div class="vortex absolute opacity-10" style="width: 250%; height: 250%; top: -75%; left: -75%;"></div>
+                    <div class="w-24 h-64 bg-slate-800 rounded-full relative overflow-hidden flex flex-col justify-around py-8 border border-slate-700 z-10 shadow-inner">
+                        <div class="w-12 h-8 bg-teal-400/30 rounded-full mx-auto shadow-[0_0_15px_rgba(45,212,191,0.3)] border border-teal-400/20"></div>
+                        <div class="w-12 h-8 bg-teal-400/30 rounded-full mx-auto shadow-[0_0_15px_rgba(45,212,191,0.3)] border border-teal-400/20"></div>
+                        <div class="w-12 h-8 bg-teal-400/30 rounded-full mx-auto shadow-[0_0_15px_rgba(45,212,191,0.3)] border border-teal-400/20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: Material Science - Acute PUR -->
+    <section class="slide" id="s7">
+        <div class="slide-content grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div class="relative h-72 w-72 mx-auto flex items-center justify-center">
+                <div class="vortex absolute" style="width: 150%; height: 150%;"></div>
+                <div class="text-center relative z-10">
+                    <div class="text-7xl font-black">37°C</div>
+                    <div class="text-[11px] uppercase tracking-[0.3em] text-sky-400 mt-2 font-bold">In-Vivo Softening</div>
+                </div>
+            </div>
+            <div>
+                <span class="section-tag">Acute Material Science</span>
+                <h2 class="text-5xl font-bold mb-6 uppercase tracking-tighter leading-none">Thermosensitive<br><span class="grad-text">Polyurethane.</span></h2>
+                <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                    The ABLE® PUR range offers dual-phase rigidity: <strong>Rigid at room temp</strong> for Seldinger insertion and <strong>Soft at body temp</strong> for dwelling comfort.
+                </p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl border-t-2 border-sky-500">
+                        <i class="fa-solid fa-shield-heart text-sky-500 mb-3 text-xl"></i>
+                        <h4 class="text-[10px] uppercase font-bold text-white mb-2">Safety</h4>
+                        <p class="text-[10px] text-slate-500">Minimizes intimal trauma and perforation risk in-vivo.</p>
+                    </div>
+                    <div class="p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl border-t-2 border-sky-500">
+                        <i class="fa-solid fa-rotate text-sky-500 mb-3 text-xl"></i>
+                        <h4 class="text-[10px] uppercase font-bold text-white mb-2">Stability</h4>
+                        <p class="text-[10px] text-slate-500">High kink-resistance ensures flow continuity in critical flexions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 8: Chronic Solutions - Hickman-Style -->
+    <section class="slide" id="s8">
+        <div class="slide-content grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="order-2 md:order-1">
+                <span class="section-tag">Long-Term Maintenance</span>
+                <h2 class="text-6xl font-black mb-6 uppercase tracking-tighter text-teal-400">Tunnelled<br><span class="text-white">Success.</span></h2>
+                <p class="text-lg text-slate-300 mb-8 leading-relaxed">
+                    Designed following the <strong>Hickman principle</strong>, our chronic series focuses on biocompatibility and bacterial migration protection.
+                </p>
+                <div class="space-y-4">
+                    <div class="p-6 bg-white/5 border-l-4 border-teal-500 rounded-r-2xl backdrop-blur-sm">
+                        <h4 class="font-bold mb-1 text-teal-400 uppercase text-xs tracking-widest">Medical-Grade Silicone</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">Maximum softness for months of dwelling. Optimal patient compliance.</p>
+                    </div>
+                    <div class="p-6 bg-white/5 border-l-4 border-sky-500 rounded-r-2xl backdrop-blur-sm">
+                        <h4 class="font-bold mb-1 text-sky-400 uppercase text-xs tracking-widest">Special Chronic PU</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">Enhanced mechanical flexibility with advanced anti-adherence properties for long-term patency.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="order-1 md:order-2 bg-slate-950 border border-slate-800 rounded-full aspect-square flex flex-col items-center justify-center relative shadow-2xl overflow-hidden group">
+                 <div class="vortex absolute w-full h-full border border-sky-500/20 rounded-full opacity-30 group-hover:scale-110 transition-transform"></div>
+                 <i class="fa-solid fa-link text-[120px] text-sky-500 mb-6 opacity-60"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: Tip Configuration Summary-->
+    <section class="slide" id="s9">
+        <div class="slide-content">
+            <span class="section-tag text-center mx-auto w-fit">Clinical Adaptability</span>
+            <h2 class="text-4xl font-bold mb-12 text-center uppercase tracking-tighter leading-none">Advanced <span class="text-sky-400">Tip Geometry.</span></h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 h-1/2">
+                <div class="p-10 bg-slate-900/80 border border-slate-800 rounded-3xl text-center hover:bg-slate-800 transition-all border-b-4 border-sky-500 flex flex-col justify-center shadow-xl">
+                    <i class="fa-solid fa-code-branch text-4xl text-sky-500 mb-6 mx-auto"></i>
+                    <h5 class="font-bold mb-4 uppercase text-white tracking-widest text-lg">Split-Tip</h5>
+                    <p class="text-xs text-slate-500 leading-relaxed">Physical separation minimizes recirculation. Optimal for high-performance clearance.</p>
+                </div>
+                <div class="p-10 bg-slate-900/80 border border-slate-800 rounded-3xl text-center hover:bg-slate-800 transition-all border-b-4 border-sky-500 flex flex-col justify-center shadow-xl">
+                    <i class="fa-solid fa-stairs text-4xl text-sky-500 mb-6 mx-auto"></i>
+                    <h5 class="font-bold mb-4 uppercase text-white tracking-widest text-lg">Step-Tip</h5>
+                    <p class="text-xs text-slate-500 leading-relaxed">The clinical standard for high-flow dialysis and stable exchange procedures.</p>
+                </div>
+                <div class="p-10 bg-slate-900/80 border border-slate-800 rounded-3xl text-center hover:bg-slate-800 transition-all border-b-4 border-sky-500 flex flex-col justify-center shadow-xl">
+                    <i class="fa-solid fa-repeat text-4xl text-sky-500 mb-6 mx-auto"></i>
+                    <h5 class="font-bold mb-4 uppercase text-white tracking-widest text-lg">Symmetrical</h5>
+                    <p class="text-xs text-slate-500 leading-relaxed">Versatile performance. Allows for line reversal without procedural loss.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 10: Split-Tip Animation -->
+    <section class="slide" id="s10">
+        <div class="slide-content flex flex-col items-center justify-center">
+            <span class="section-tag">Advanced Tip Engineering</span>
+            <h2 class="text-5xl font-black mb-8 uppercase tracking-tighter">Split-Tip <span class="text-sky-400">Dynamics.</span></h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full">
+                <div class="bg-slate-950 p-12 rounded-[4rem] border border-slate-800 shadow-2xl relative overflow-hidden h-[400px] flex items-center justify-center">
+                    <svg viewBox="0 0 200 150" class="w-full h-full">
+                        <!-- Shaft -->
+                        <path d="M10,65 L100,65 L100,85 L10,85 Z" fill="#334155" />
+                        <!-- Split Upper -->
+                        <path d="M100,65 Q130,65 160,35 L170,40 Q145,75 100,75 Z" fill="#ef4444" />
+                        <!-- Split Lower -->
+                        <path d="M100,85 Q130,85 160,115 L170,110 Q145,75 100,75 Z" fill="#3b82f6" />
+                        
+                        <!-- Arterial Path -->
+                        <path d="M165,37 Q185,37 195,15" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,5" class="flow-path-arterial" />
+                        <!-- Venous Path -->
+                        <path d="M165,113 Q185,113 195,135" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5" class="flow-path-venous" />
+                    </svg>
+                </div>
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold uppercase text-teal-400">Zero Recirculation Strategy</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed text-justify">
+                        By physically separating the arterial uptake and venous return ports into two distinct "arms," the Split-Tip configuration ensures that filtered blood is returned as far as possible from the arterial intake.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-xs text-slate-300">
+                            <i class="fa-solid fa-check text-sky-500"></i> Near-zero recirculation rates for peak Kt/V.
+                        </li>
+                        <li class="flex items-center gap-3 text-xs text-slate-300">
+                            <i class="fa-solid fa-check text-sky-500"></i> Independent movement of lumens reduces wall adherence risk.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 11: Symmetrical Tip Animation (STAGGERED/SEPARATED) -->
+    <section class="slide" id="s11">
+        <div class="slide-content flex flex-col items-center justify-center">
+            <span class="section-tag">Tip Architecture</span>
+            <h2 class="text-5xl font-black mb-8 uppercase tracking-tighter">Symmetrical <span class="text-sky-400">Reciprocity.</span></h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full">
+                <div class="bg-slate-950 p-12 rounded-[4rem] border border-slate-800 shadow-2xl relative overflow-hidden h-[400px] flex items-center justify-center">
+                    <div class="vortex absolute opacity-10" style="width: 200%; height: 200%; top: -50%; left: -50%;"></div>
+                    <svg viewBox="0 0 240 120" class="w-full relative z-10">
+                        <!-- Shaft (Single body) -->
+                        <rect x="20" y="45" width="140" height="30" rx="4" fill="#334155" />
+                        
+                        <!-- Symmetrical staggered tip openings -->
+                        <!-- Lumen A: Ends further back -->
+                        <path d="M160,45 L180,45 Q190,45 190,53 L160,53 Z" fill="#ef4444" opacity="0.9" />
+                        
+                        <!-- Separation / Staggering point -->
+                        <rect x="160" y="53" width="50" height="14" fill="#1e293b" />
+                        
+                        <!-- Lumen B: Ends further forward -->
+                        <path d="M160,67 L210,67 Q220,67 220,75 L160,75 Z" fill="#3b82f6" opacity="0.9" />
+                        
+                        <!-- Balanced Offset Flow -->
+                        <path d="M185,49 Q220,49 235,20" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,4" class="flow-path-arterial" />
+                        <path d="M215,71 Q235,71 235,100" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="6,4" class="flow-path-venous" />
+                    </svg>
+                </div>
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold uppercase text-sky-400">Staggered Balance</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed text-justify">
+                        The Symmetrical Tip design utilizes separated and staggered openings to maintain "Balanced Reciprocity." Unlike traditional step-tips, these are engineered to provide identical hemodynamic performance.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-xs text-slate-300">
+                            <i class="fa-solid fa-arrows-rotate text-sky-500"></i> Efficient flow even during line reversal.
+                        </li>
+                        <li class="flex items-center gap-3 text-xs text-slate-300">
+                            <i class="fa-solid fa-water text-sky-500"></i> Staggered levels reduce thrombus formation.
+                        </li>
+                        <li class="flex items-center gap-3 text-xs text-slate-300">
+                            <i class="fa-solid fa-gauge-high text-sky-500"></i> Consistent performance @ 600+ mL/min.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 12: Clinical Conclusion -->
+    <section class="slide" id="s12">
+        <div class="slide-content flex flex-col justify-center">
+            <span class="section-tag">Clinical Conclusion</span>
+            <h2 class="text-6xl font-black mb-12 uppercase tracking-tighter leading-none">Indication <span class="text-sky-400">Scenarios.</span></h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white/5 p-10 rounded-3xl border border-white/5 backdrop-blur-md">
+                    <div class="flex items-center gap-6 mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400 font-bold text-2xl">01</div>
+                        <h4 class="font-bold text-xl uppercase tracking-tighter">Acute Care</h4>
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed mb-4 italic">"The patient develops acute kidney injury and requires immediate RRT."</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">Management of uremia, hyperkalemia, or immediate fluid overload in ICU settings.</p>
+                </div>
+                <div class="bg-white/5 p-10 rounded-3xl border border-white/5 backdrop-blur-md">
+                    <div class="flex items-center gap-6 mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400 font-bold text-2xl">02</div>
+                        <h4 class="font-bold text-xl uppercase tracking-tighter">Maintenance Bridge</h4>
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed mb-4 italic">"Dysfunction or Complication of Permanent Vascular Access."</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">Transition access during the failure or maturation of an AVF or vascular graft.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 13: Strategic Alignment -->
+    <section class="slide" id="s13">
+        <div class="slide-content grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-6xl font-black mb-10 uppercase tracking-tighter leading-none">Iberian<br><span class="text-sky-400">Alignment.</span></h2>
+                <div class="space-y-4">
+                    <div class="p-8 bg-white/5 border-l-4 border-red-500 rounded-r-3xl backdrop-blur-sm">
+                        <p class="text-red-500 font-bold uppercase text-[10px] mb-2 tracking-[0.3em]">Spain (SNS)</p>
+                        <p class="text-sm text-slate-400 leading-relaxed">Technical portfolios ready for regional public tenders. High efficiency for tertiary hospitals.</p>
+                    </div>
+                    <div class="p-8 bg-white/5 border-l-4 border-green-500 rounded-r-3xl backdrop-blur-sm">
+                        <p class="text-green-500 font-bold uppercase text-[10px] mb-2 tracking-[0.3em]">Portugal (ULS)</p>
+                        <p class="text-sm text-slate-400 leading-relaxed">Value-based alignment with Local Health Units. Procurement transparency and clinical uptime mastery.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative bg-slate-950 p-20 rounded-[4rem] border border-slate-800 text-center shadow-2xl">
+                 <h4 class="text-[11px] uppercase tracking-[0.5em] text-slate-600 font-bold mb-10">Market Growth</h4>
+                 <div class="text-9xl font-black text-white mb-2 tracking-tighter leading-none">22%</div>
+                 <div class="text-[12px] uppercase tracking-[0.4em] text-sky-400 font-black">European Growth YOY</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 14: Contact Strategy -->
+    <section class="slide" id="s14">
+        <div class="slide-content flex flex-col justify-center items-center">
+            <h2 class="text-6xl font-bold mb-16 tracking-tighter uppercase leading-none">Let's Define the <span class="grad-text">Future.</span></h2>
+            
+            <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="bg-white/5 border border-white/10 p-12 rounded-[4rem] backdrop-blur-md relative overflow-hidden shadow-2xl">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-sky-500/5 rounded-bl-[6rem]"></div>
+                    <div class="text-sky-400 font-bold text-[11px] uppercase tracking-widest mb-6">Contact</div>
+                    <h3 class="text-5xl font-black mb-2">André Ferreira</h3>
+                    <p class="text-slate-400 mb-12 text-lg">Baihe Medical Iberia</p>
+                    
+                    <div class="space-y-8">
+                        <div class="flex items-center gap-6 text-slate-300">
+                            <i class="fa-solid fa-envelope w-10 text-sky-500 text-2xl"></i>
+                            <span class="text-lg">a.ferreira@baihemedical.com</span>
+                        </div>
+                        <div class="flex items-center gap-6 text-slate-300">
+                            <i class="fa-solid fa-phone w-10 text-sky-500 text-2xl"></i>
+                            <span class="text-lg">+351 91 988 4567</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-10">
+                    <div class="bg-slate-900/50 border border-slate-800 p-10 rounded-[2.5rem] shadow-xl">
+                        <h5 class="text-slate-500 text-[11px] uppercase font-bold tracking-[0.4em] mb-6">Global HQ</h5>
+                        <p class="text-sm text-slate-400 leading-relaxed uppercase tracking-tighter font-mono">
+                            GUANGDONG BAIHE MEDICAL TECHNOLOGY CO., LTD.
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/50 border border-slate-800 p-10 rounded-[2.5rem] flex-grow flex flex-col justify-center items-center text-center shadow-xl">
+                        <p class="text-3xl font-bold text-white mb-8 tracking-tighter">www.baihemedical.eu</p>
+                        <div class="flex gap-6">
+                            <div class="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[11px] font-bold uppercase tracking-widest">MDR CERTIFIED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-20">
+                <button onclick="currentSlide=0; updateSlide()" class="text-[11px] font-bold text-slate-500 hover:text-sky-400 transition tracking-[0.4em] uppercase group">
+                    ↺ Restart Presentation <span class="block h-px w-0 group-hover:w-full bg-sky-500 transition-all duration-500"></span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- UI Overlay: Progress Dots -->
+    <div class="progress-container" id="progress"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressContainer = document.getElementById('progress');
+
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = `progress-dot ${i === 0 ? 'active' : ''}`;
+            dot.onclick = () => { currentSlide = i; updateSlide(); };
+            progressContainer.appendChild(dot);
+        });
+
+        function updateSlide() {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown') {
+                if (currentSlide < slides.length - 1) { currentSlide++; updateSlide(); }
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                if (currentSlide > 0) { currentSlide--; updateSlide(); }
+            }
+        });
+
+        let touchstartX = 0;
+        document.addEventListener('touchstart', e => touchstartX = e.changedTouches[0].screenX );
+        document.addEventListener('touchend', e => {
+            let touchendX = e.changedTouches[0].screenX;
+            if (touchendX < touchstartX - 50 && currentSlide < slides.length - 1) { currentSlide++; updateSlide(); }
+            if (touchendX > touchstartX + 50 && currentSlide > 0) { currentSlide--; updateSlide(); }
+        });
+    </script>
+</body>
+</html>
